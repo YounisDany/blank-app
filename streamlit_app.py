@@ -1,8 +1,8 @@
+import os
 import streamlit as st
 import openai
 import pdfplumber
 import csv
-import os
 import json
 from bs4 import BeautifulSoup
 import requests
@@ -13,8 +13,8 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.schema import Document
 from langchain.llms import OpenAI
 
-# إعداد مفتاح API الخاص بـ OpenAI
-openai.api_key = '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'  # استبدل 'YOUR_OPENAI_API_KEY' بمفتاح API الخاص بك
+# تعيين مفتاح OpenAI API كمتحول بيئي
+os.environ["OPENAI_API_KEY"] = "YOUR_OPENAI_API_KEY"  # استبدل 'YOUR_OPENAI_API_KEY' بالمفتاح الفعلي
 
 # دوال تحميل الملفات الثابتة (PDF, CSV, TXT, JSON, HTML)
 def load_pdf(file_path):
@@ -58,7 +58,7 @@ def load_web_content(url):
     text = ' '.join([p.get_text() for p in paragraphs])
     return text
 
-# تحميل الروابط من ملف links.txt أو links.json وتحليلها كصفحات HTML
+# تحميل الروابط من ملف links.json وتحليلها كصفحات HTML
 def load_links():
     links_file_path = os.path.join("data", "links.json")
     documents = []
@@ -75,11 +75,18 @@ def load_links():
     
     return documents
 
-# إعداد LangChain
+# إعداد LangChain مع معالجة الأخطاء
 def setup_chain(documents):
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     docs = text_splitter.split_documents(documents)
-    embeddings = OpenAIEmbeddings()
+    
+    # معالجة أخطاء تهيئة OpenAIEmbeddings
+    try:
+        embeddings = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"))
+    except Exception as e:
+        st.error(f"حدث خطأ أثناء تهيئة OpenAIEmbeddings: {e}")
+        return None
+    
     db = FAISS.from_documents(docs, embeddings)
     return ConversationalRetrievalChain(OpenAI(), db.as_retriever())
 
