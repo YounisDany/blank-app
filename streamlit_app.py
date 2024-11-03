@@ -10,6 +10,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.chains import ConversationalRetrievalChain
+from langchain.schema import Document
 from langchain.llms import OpenAI
 
 # إعداد مفتاح API الخاص بـ OpenAI
@@ -59,23 +60,18 @@ def load_web_content(url):
 
 # تحميل الروابط من ملف links.txt أو links.json وتحليلها كصفحات HTML
 def load_links():
-    links_file_path = os.path.join("data", "links.txt")
+    links_file_path = os.path.join("data", "links.json")
     documents = []
-    
-    # التحقق من وجود links.txt
+
     if os.path.exists(links_file_path):
-        with open(links_file_path, "r", encoding="utf-8") as file:
-            links = file.readlines()
-            for link in links:
-                link = link.strip()
-                documents.append(load_web_content(link))
-    
-    # إذا كان ملف JSON، قم بتحميله
-    elif os.path.exists(os.path.join("data", "links.json")):
-        with open(os.path.join("data", "links.json"), "r", encoding="utf-8") as file:
-            data = json.load(file)
-            for link in data["links"]:
-                documents.append(load_web_content(link))
+        try:
+            with open(links_file_path, "r", encoding="utf-8") as file:
+                data = json.load(file)
+                for link in data["links"]:
+                    content = load_web_content(link)
+                    documents.append(Document(page_content=content, metadata={"source": link}))
+        except json.JSONDecodeError:
+            st.error("هناك خطأ في تنسيق ملف links.json. تأكد من أن الملف يحتوي على تنسيق JSON صالح.")
     
     return documents
 
@@ -93,17 +89,21 @@ def load_all_files():
     data_folder = "data"
     for filename in os.listdir(data_folder):
         file_path = os.path.join(data_folder, filename)
+        content = None
         if filename.endswith(".pdf"):
-            documents.append(load_pdf(file_path))
+            content = load_pdf(file_path)
         elif filename.endswith(".csv"):
-            documents.append(load_csv(file_path))
+            content = load_csv(file_path)
         elif filename.endswith(".txt") and filename != "links.txt":
-            documents.append(load_txt(file_path))
+            content = load_txt(file_path)
         elif filename.endswith(".json") and filename != "links.json":
-            documents.append(load_json(file_path))
+            content = load_json(file_path)
         elif filename.endswith(".html") or filename.endswith(".htm"):
-            documents.append(load_html(file_path))
-    
+            content = load_html(file_path)
+        
+        if content:
+            documents.append(Document(page_content=content, metadata={"source": filename}))
+
     # إضافة محتوى الروابط كصفحات HTML
     documents.extend(load_links())
     return documents
