@@ -1,7 +1,6 @@
 streamlit
 openai
 pdfplumber
-csv
 beautifulsoup4
 requests
 langchain
