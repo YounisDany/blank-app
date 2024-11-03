@@ -11,7 +11,7 @@ from langchain.schema import Document
 from langchain.llms import OpenAI
 
 # تعيين مفتاح OpenAI API كمتحول بيئي
-os.environ["OPENAI_API_KEY"] = "YOUR_OPENAI_API_KEY"  # استبدل 'YOUR_OPENAI_API_KEY' بالمفتاح الفعلي
+os.environ["OPENAI_API_KEY"] = "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"  # استبدل 'YOUR_OPENAI_API_KEY' بالمفتاح الفعلي
 
 # تحميل محتوى صفحة ويب من رابط HTML
 def load_web_content(url):
