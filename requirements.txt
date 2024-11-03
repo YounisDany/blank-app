@@ -1,8 +1,9 @@
+
 streamlit
 openai
-pdfplumber
 beautifulsoup4
 requests
 langchain
 langchain-community
 faiss-cpu
+tiktoken
