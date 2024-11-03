@@ -13,6 +13,12 @@ from langchain.llms import OpenAI
 # تعيين مفتاح OpenAI API كمتحول بيئي
 os.environ["OPENAI_API_KEY"] = "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"  # استبدل 'YOUR_OPENAI_API_KEY' بالمفتاح الفعلي
 
+# التأكد من تحميل المفتاح
+if not os.getenv("OPENAI_API_KEY"):
+    st.error("مفتاح OpenAI API غير موجود. يرجى التأكد من تعيينه بشكل صحيح.")
+else:
+    st.success("تم تحميل مفتاح OpenAI API بنجاح.")
+
 # تحميل محتوى صفحة ويب من رابط HTML
 def load_web_content(url):
     response = requests.get(url)
@@ -66,7 +72,7 @@ chain = setup_chain(documents)
 user_input = st.text_input("اكتب سؤالك هنا:")
 
 # عرض الإجابة
-if user_input:
+if user_input and chain:
     with st.spinner("جاري البحث عن الإجابة..."):
         response = chain({"question": user_input})
         st.write("الإجابة:", response["answer"])
