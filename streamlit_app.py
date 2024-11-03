@@ -14,7 +14,7 @@ from langchain.schema import Document
 from langchain.llms import OpenAI
 
 # إعداد مفتاح API الخاص بـ OpenAI
-openai.api_key = 'YOUR_OPENAI_API_KEY'  # استبدل 'YOUR_OPENAI_API_KEY' بمفتاح API الخاص بك
+openai.api_key = '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'  # استبدل 'YOUR_OPENAI_API_KEY' بمفتاح API الخاص بك
 
 # دوال تحميل الملفات الثابتة (PDF, CSV, TXT, JSON, HTML)
 def load_pdf(file_path):
